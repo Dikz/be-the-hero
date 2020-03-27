@@ -27,6 +27,7 @@ export default function Incidents() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false);
 
   const navigation = useNavigation();
 
@@ -34,6 +35,14 @@ export default function Incidents() {
     navigation.navigate("Detail", {
       incident
     });
+  }
+
+  async function refresh() {
+    const response = await api.get("incidents");
+
+    setIncidents(response.data);
+    setTotal(response.headers["x-total-count"]);
+    setIsRefresh(false);
   }
 
   async function loadIncidents() {
@@ -75,6 +84,8 @@ export default function Incidents() {
         showsVerticalScrollIndicator={false}
         onEndReached={loadIncidents}
         onEndReachedThreshold={0.2}
+        onRefresh={refresh}
+        refreshing={isRefresh}
         renderItem={({ item: incident }) => (
           <Incident>
             <Prop>ONG:</Prop>
