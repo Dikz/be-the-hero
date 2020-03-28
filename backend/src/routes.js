@@ -20,9 +20,10 @@ routes.post(
         .required()
         .email(),
       whatsapp: Joi.string()
-        .required()
+        .regex(/^[0-9]*$/)
         .min(10)
-        .max(11),
+        .max(11)
+        .required(),
       city: Joi.string().required(),
       uf: Joi.string()
         .required()
