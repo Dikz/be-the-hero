@@ -1,65 +1,33 @@
 const { Router } = require("express");
-const { celebrate, Segments, Joi } = require("celebrate");
 
+// Controllers
 const OngController = require("./controllers/OngController");
 const IncidentController = require("./controllers/IncidentController");
 const ProfileController = require("./controllers/ProfileController");
 const SessionController = require("./controllers/SessionController");
 
+// Validations
+const OngValidation = require("./validations/OngValidation");
+const IncidentValidation = require("./validations/IncidentValidation");
+const ProfileValidation = require("./validations/ProfileValidation");
+
 const routes = Router();
 
 routes.post("/sessions", SessionController.store);
 
+// Ongs
 routes.get("/ongs", OngController.index);
-routes.post(
-  "/ongs",
-  celebrate({
-    [Segments.BODY]: Joi.object().keys({
-      name: Joi.string().required(),
-      email: Joi.string()
-        .required()
-        .email(),
-      whatsapp: Joi.string()
-        .regex(/^[0-9]*$/)
-        .min(10)
-        .max(11)
-        .required(),
-      city: Joi.string().required(),
-      uf: Joi.string()
-        .required()
-        .length(2)
-    })
-  }),
-  OngController.store
-);
+routes.post("/ongs", OngValidation.store, OngController.store);
 
-routes.get(
-  "/profile",
-  celebrate({
-    [Segments.HEADERS]: Joi.object({
-      authorization: Joi.string().required()
-    }).unknown()
-  }),
-  ProfileController.index
-);
+// Profile
+routes.get("/profile", ProfileValidation.index, ProfileController.index);
 
-routes.get(
-  "/incidents",
-  celebrate({
-    [Segments.QUERY]: Joi.object().keys({
-      page: Joi.number()
-    })
-  }),
-  IncidentController.index
-);
+// Incidents
+routes.get("/incidents", IncidentValidation.index, IncidentController.index);
 routes.post("/incidents", IncidentController.store);
 routes.delete(
   "/incidents/:id",
-  celebrate({
-    [Segments.PARAMS]: Joi.object().keys({
-      id: Joi.number().required()
-    })
-  }),
+  IncidentValidation.destroy,
   IncidentController.destroy
 );
 
